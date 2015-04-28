@@ -78,6 +78,8 @@ RUN sed -i \
     -e 's~^;date.timezone =$~date.timezone = Europe/London~g' \
     -e 's~^;user_ini.filename =$~user_ini.filename =~g' \
     /etc/php.ini
+    
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer    
 
 RUN echo '<?php phpinfo(); ?>' > /var/www/html/index.php
 
