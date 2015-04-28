@@ -19,16 +19,76 @@ RUN yum --setopt=tsflags=nodocs -y install \
     && rm -rf /var/cache/yum/* \
     && yum clean all
 
-RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf && \
-    sed -i "s/variables_order.*/variables_order = \"EGPCS\"/g" /etc/php5/apache2/php.ini
+#
+# Global Apache configuration changes
+#
+RUN sed -i \
+    -e 's~^ServerSignature On$~ServerSignature Off~g' \
+    -e 's~^ServerTokens OS$~ServerTokens Prod~g' \
+    -e 's~^#ExtendedStatus On$~ExtendedStatus On~g' \
+    -e 's~^DirectoryIndex \(.*\)$~DirectoryIndex \1 index.php~g' \
+    -e 's~^NameVirtualHost \(.*\)$~#NameVirtualHost \1~g' \
+    /etc/httpd/conf/httpd.conf
 
-ADD bootstrap.sh /bootstrap.sh
-RUN chmod 755 /*.sh
+#
+# Disable Apache directory indexes
+#
+RUN sed -i \
+    -e 's~^IndexOptions \(.*\)$~#IndexOptions \1~g' \
+    -e 's~^IndexIgnore \(.*\)$~#IndexIgnore \1~g' \
+    -e 's~^AddIconByEncoding \(.*\)$~#AddIconByEncoding \1~g' \
+    -e 's~^AddIconByType \(.*\)$~#AddIconByType \1~g' \
+    -e 's~^AddIcon \(.*\)$~#AddIcon \1~g' \
+    -e 's~^DefaultIcon \(.*\)$~#DefaultIcon \1~g' \
+    -e 's~^ReadmeName \(.*\)$~#ReadmeName \1~g' \
+    -e 's~^HeaderName \(.*\)$~#HeaderName \1~g' \
+    /etc/httpd/conf/httpd.conf
 
-# Configure /app folder with sample app
-RUN mkdir -p /app && rm -fr /var/www/html && ln -s /app /var/www/html
-ADD index/ /app
+#
+# Disable Apache language based content negotiation
+#
+RUN sed -i \
+    -e 's~^LanguagePriority \(.*\)$~#LanguagePriority \1~g' \
+    -e 's~^ForceLanguagePriority \(.*\)$~#ForceLanguagePriority \1~g' \
+    -e 's~^AddLanguage \(.*\)$~#AddLanguage \1~g' \
+    /etc/httpd/conf/httpd.conf
 
-EXPOSE 80
-WORKDIR /app
-CMD [“/bootstrap.sh"]
+#
+# Disable all Apache modules and enable the minimum
+#
+RUN sed -i \
+    -e 's~^\(LoadModule .*\)$~#\1~g' \
+    -e 's~^#LoadModule mime_module ~LoadModule mime_module ~g' \
+    -e 's~^#LoadModule log_config_module ~LoadModule log_config_module ~g' \
+    -e 's~^#LoadModule setenvif_module ~LoadModule setenvif_module ~g' \
+    -e 's~^#LoadModule status_module ~LoadModule status_module ~g' \
+    -e 's~^#LoadModule authz_host_module ~LoadModule authz_host_module ~g' \
+    -e 's~^#LoadModule dir_module ~LoadModule dir_module ~g' \
+    -e 's~^#LoadModule alias_module ~LoadModule alias_module ~g' \
+    -e 's~^#LoadModule expires_module ~LoadModule expires_module ~g' \
+    -e 's~^#LoadModule deflate_module ~LoadModule deflate_module ~g' \
+    -e 's~^#LoadModule headers_module ~LoadModule headers_module ~g' \
+    -e 's~^#LoadModule alias_module ~LoadModule alias_module ~g' \
+    /etc/httpd/conf/httpd.conf
+
+#
+# Global PHP configuration changes
+#
+RUN sed -i \
+    -e 's~^;date.timezone =$~date.timezone = Europe/London~g' \
+    -e 's~^;user_ini.filename =$~user_ini.filename =~g' \
+    /etc/php.ini
+
+RUN echo '<?php phpinfo(); ?>' > /var/www/html/index.php
+
+#
+# Purge
+#
+
+RUN rm -rf /sbin/sln \
+    ; rm -rf /usr/{{lib,share}/locale,share/{man,doc,info,gnome/help,cracklib,il8n},{lib,lib64}/gconv,bin/localedef,sbin/build-locale-archive} \
+    ; rm -rf /var/cache/{ldconfig,yum}/*
+
+EXPOSE 80 443
+
+CMD /usr/sbin/httpd -c "ErrorLog /dev/stdout" -DFOREGROUND
