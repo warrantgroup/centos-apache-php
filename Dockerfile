@@ -40,10 +40,6 @@ RUN sed -i \
     -e 's~^;user_ini.filename =$~user_ini.filename =~g' \
     /etc/php.ini
 
-# Add image configuration and scripts
-ADD run.sh /run.sh
-RUN chmod 755 /*.sh
-
 # Configure /app folder with sample app
 ADD site/ /var/www/html
 VOLUME ["/var/www/html"]
