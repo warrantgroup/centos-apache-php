@@ -14,7 +14,7 @@ RUN yum --setopt=tsflags=nodocs -y install \
     php-curl \
     php-mysql \
     php-xml \
-    php -pear \	
+    php-pear \	
     php-pecl-apc \
     && rm -rf /var/cache/yum/* \
     && yum clean all
