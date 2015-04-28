@@ -46,6 +46,8 @@ RUN chmod 755 /*.sh
 
 # Configure /app folder with sample app
 ADD site/ /var/www/html
+VOLUME ["/var/www/html"]
 
 EXPOSE 80
-CMD ["/run.sh"]
+
+CMD /usr/sbin/httpd -c "ErrorLog /dev/stdout" -DFOREGROUND
