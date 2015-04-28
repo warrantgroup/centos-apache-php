@@ -7,7 +7,7 @@
             background-color: white;
             text-align: center;
             padding: 50px;
-            font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+            font-family: Helvetica,Arial,sans-serif;
         }
 
         #logo {
@@ -17,8 +17,8 @@
 </head>
 <body>
 <img id="logo" src="logo.gif" />
-<h1><?php echo "Hello ".($_ENV["NAME"]?$_ENV["NAME"]:"world")."!"; ?></h1>
-<?php if($_ENV["HOSTNAME"]) {?><h3>My hostname is <?php echo $_ENV["HOSTNAME"]; ?></h3><?php } ?>
+<h2><?php echo "Hello ".(isset($_ENV["NAME"]) ?$_ENV["NAME"]:"world")."!"; ?></h2>
+<?php if(isset($_ENV["HOSTNAME"])) {?><h3>My hostname is <?php echo $_ENV["HOSTNAME"]; ?></h3><?php } ?>
 <?php
 $links = [];
 foreach($_ENV as $key => $value) {
@@ -31,7 +31,7 @@ foreach($_ENV as $key => $value) {
         ];
     }
 }
-if($links) {
+if(count($links) > 0) {
     ?>
     <h3>Links found</h3>
     <?php
