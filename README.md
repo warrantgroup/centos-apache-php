@@ -7,7 +7,7 @@ Base docker image to run PHP applications on Centos, Apache and PHP
 Building the base image
 -----------------------
 
-To create the base image `warrantgroup/centos-apache-php`, execute the following command on the tutum-docker-php folder:
+To create the base image `warrantgroup/centos-apache-php`, execute the following command:
 
     docker build -t warrantgroup/centos-apache-php .
 
