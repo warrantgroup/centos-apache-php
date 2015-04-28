@@ -81,13 +81,11 @@ RUN sed -i \
 
 RUN echo '<?php phpinfo(); ?>' > /var/www/html/index.php
 
-#
-# Purge
-#
-
 RUN rm -rf /sbin/sln \
     ; rm -rf /usr/{{lib,share}/locale,share/{man,doc,info,gnome/help,cracklib,il8n},{lib,lib64}/gconv,bin/localedef,sbin/build-locale-archive} \
     ; rm -rf /var/cache/{ldconfig,yum}/*
+    
+VOLUME ["/var/www/html"]    
 
 EXPOSE 80 443
 
