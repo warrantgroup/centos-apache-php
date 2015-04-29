@@ -41,7 +41,7 @@ RUN sed -i \
     /etc/php.ini
 
 # Configure /app folder with sample app
-ADD site/ /var/www/html
+COPY index.html /usr/share/httpd/noindex/index.html
 VOLUME ["/var/www/html"]
 
 EXPOSE 80
